@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: master
+spec:
+  selector:
+    matchLabels:
+      app: master
+  template:
+    metadata:
+      labels:
+        app: master
+    spec:
+      volumes:
+      - name: indicator-strategy-evaluator-pv-storage
+        persistentVolumeClaim:
+          claimName: indicator-strategy-evaluator-pvc
+      containers:
+      - name: master
+        image: rajcurious/test-master-node
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "256m"
+        env:
+           - name: POD_NAME
+             valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+           - name: DISTRIBUTE_TASKS_INTERVAL
+             value: "5"
+           - name: HEALTH_CHECK_INTERVAL
+             value: "2"
+           - name: SLAVE_SERVICE_NAME
+             value: "headless-slave"
+        volumeMounts:
+           - mountPath: "/mnt/data"
+             name: indicator-strategy-evaluator-pv-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: master-svc
+  labels:
+    app: master
+spec:
+  selector:
+    app: master
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: slave-statefullset
+spec:
+  selector:
+    matchLabels:
+      app: slave
+  serviceName: "headless-slave"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: slave
+    spec:
+      volumes:
+      - name: indicator-strategy-evaluator-pv-storage
+        persistentVolumeClaim:
+          claimName: indicator-strategy-evaluator-pvc
+      containers:
+      - name: master
+        image: rajcurious/test-slave-node
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "256m"
+        env:
+           - name: POD_NAME
+             valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+           - name: SERVICE_NAME
+             value: 'master-svc'
+        volumeMounts:
+           - mountPath: "/mnt/data"
+             name: indicator-strategy-evaluator-pv-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: headless-slave
+  labels:
+    app: slave
+spec:
+  clusterIP: None # Headless service
+  selector:
+    app: slave
+  ports:
+    - protocol: TCP   
+      port: 80
+      targetPort: 80
+
