@@ -7,7 +7,7 @@ spec:
     matchLabels:
       app: slave
   serviceName: "headless-slave"
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
@@ -32,7 +32,7 @@ spec:
            - name: SERVICE_NAME
              value: 'master-svc'
         volumeMounts:
-           - mountPath: "/mnt/data"
+           - mountPath: "/data"
              name: indicator-strategy-evaluator-pv-storage
 ---
 apiVersion: v1

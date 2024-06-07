@@ -34,7 +34,7 @@ spec:
            - name: SLAVE_SERVICE_NAME
              value: "headless-slave"
         volumeMounts:
-           - mountPath: "/mnt/data"
+           - mountPath: "/data"
              name: indicator-strategy-evaluator-pv-storage
 ---
 apiVersion: v1
